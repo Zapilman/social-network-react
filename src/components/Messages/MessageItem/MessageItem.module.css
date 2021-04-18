@@ -1,0 +1,24 @@
+
+
+.message {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+
+}
+.message img{
+    max-width: 40px;
+    border-radius: 50%;
+}
+.message span{
+    padding: 0 10px;
+}
+
+.message.fromUser {
+    flex-direction: row-reverse;
+}
+
+.message:last-child {
+    margin-bottom: 20px;
+}

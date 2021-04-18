@@ -1,0 +1,36 @@
+
+.messages__wrapper {
+    display: flex;
+    border-radius: 10px;
+    background: gray;
+}
+
+.dialogs {
+    flex: 0 1 20%;
+
+    padding: 20px;
+}
+
+
+.messages {
+    flex-basis: 80%;
+    background: whitesmoke;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.messages input{
+    background: whitesmoke;
+    border: 1px solid gray;
+    border-radius: 5px;
+    width: 80%;
+    align-self: center;
+}
+
+.messagesContent {
+    max-width: 60%;
+    width: 100%;
+    margin: 10px auto;
+}

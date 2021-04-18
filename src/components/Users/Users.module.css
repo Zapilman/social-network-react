@@ -1,0 +1,22 @@
+.users__wrapper{
+    display: flex;
+    flex-direction: column;
+    background: gray;
+}
+
+.user__item{
+    display: flex;
+}
+
+.activePage{
+    font-weight: bold;
+}
+
+.pageLink{
+    cursor: pointer;
+
+    margin: 0 20px;
+}
+
+
+

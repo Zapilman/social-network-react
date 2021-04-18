@@ -1,0 +1,10 @@
+.content img{
+    max-width: 60px;
+}
+.content{
+    display: flex;
+    align-items: center;
+}
+.content span{
+    margin-left: 20px;
+}
