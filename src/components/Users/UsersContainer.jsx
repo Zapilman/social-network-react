@@ -1,29 +1,16 @@
 import {connect} from "react-redux";
-import {setUsers, toggleFollow, setNewPage, setTotalUsers, setLoadingIcon} from "../../redux/usersReducer";
+import {getUsers, follow, unfollow} from "../../redux/usersReducer";
 import React from "react";
-import * as axios from "axios";
 import Users from "./Users";
 
 
 class UserAjaxComponent extends React.Component {
     componentDidMount() {
-        axios.get(`https://social-network.samuraijs.com/api/1.0/users?page=${this.props.currentPage}&count=${this.props.pageSize}`,
-            {withCredentials: true})
-            .then(response => {
-                this.props.setLoadingIcon(false);
-                this.props.setUsers(response.data.items);
-                this.props.setTotalUsers(response.data.totalCount);
-            });
+        this.props.getUsers(this.props.currentPage, this.props.pageSize);
     }
 
     OnPageChanged = (pageNumber) => {
-        this.props.setNewPage(pageNumber);
-        this.props.setLoadingIcon(true);
-        axios.get(`https://social-network.samuraijs.com/api/1.0/users?page=${pageNumber}&count=${this.props.pageSize}`)
-            .then(response => {
-                this.props.setLoadingIcon(false);
-                this.props.setUsers(response.data.items);
-            });
+        this.props.getUsers(pageNumber, this.props.pageSize);
     }
 
     render() {
@@ -31,7 +18,10 @@ class UserAjaxComponent extends React.Component {
                       OnPageChanged={this.OnPageChanged}
                       currentPage={this.props.currentPage}
                       users={this.props.users}
-                      toggleFollow={this.props.toggleFollow} isLoading={this.props.isLoading}/>
+                      isLoading={this.props.isLoading}
+                      follow={this.props.follow}
+                      unfollow={this.props.unfollow}
+                      usersFollowProcess={this.props.usersFollowProcess}/>
     }
 
 
@@ -43,13 +33,11 @@ let mapStateToProps = (state) => {
         countPage: state.usersPage.countPage(),
         currentPage: state.usersPage.currentPage,
         pageSize: state.usersPage.pageSize,
-        isLoading: state.usersPage.isLoading
+        isLoading: state.usersPage.isLoading,
+        usersFollowProcess: state.usersPage.usersFollowProcess
     }
 };
 
-const UsersContainer = connect(mapStateToProps, {
-    toggleFollow, setUsers,
-    setNewPage, setTotalUsers, setLoadingIcon
-})(UserAjaxComponent);
+const UsersContainer = connect(mapStateToProps, {getUsers, follow, unfollow})(UserAjaxComponent);
 
-export default UsersContainer
+export default UsersContainer;

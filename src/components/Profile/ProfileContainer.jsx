@@ -1,38 +1,27 @@
 import React from "react";
 import Profile from "./Profile";
 import {connect} from "react-redux";
-import {addPost, setInput, setLoadingIcon, setProfile} from "../../redux/profileReducer";
-import * as axios from "axios";
+import {getProfile, getStatus, setStatus} from "../../redux/profileReducer";
 import Preloader from "../Preloader/Preloader";
 import {withRouter} from "react-router";
+import withRedirectHoc from "../../hoc/withRedirect";
+import {compose} from "redux";
+import {getIsLoading, getPosts, getProfileSelector} from "../../utilities/selectors";
 
 
-class ProfileContainer extends React.Component {
-    componentDidMount() {
-        let userId = this.props.match.params.userId;
-        if(!userId){
-            userId = 2;
-        }
-        axios.get(`https://social-network.samuraijs.com/api/1.0/profile/${userId}`)
-            .then(response => {
-                this.props.setProfile(response.data);
-                this.props.setLoadingIcon(false);
-            });
-    }
-
-    render() {
-        return this.props.isLoading ? <Preloader/> : <Profile {...this.props}/>;
-    }
+const ProfileContainer = (props) => {
+    return props.isLoading ? <Preloader/> : <Profile {...props}/>;
 }
 
 let mapStateToProps = (state) => ({
-    newInputText: state.profilePage.newInputText,
-    posts: state.profilePage.posts,
-    profile: state.profilePage.profile,
-    isLoading: state.profilePage.isLoading
-
+    posts: getPosts(state),
+    profile: getProfileSelector(state),
+    isLoading: getIsLoading(state),
 });
 
-
-export default connect(mapStateToProps, {setProfile, addPost,
-    setInput, setLoadingIcon})(withRouter(ProfileContainer))
+export default compose(
+    withRedirectHoc,
+    withRouter,
+    connect(mapStateToProps,
+        {getProfile, setStatus, getStatus})
+)(ProfileContainer)

@@ -2,8 +2,9 @@ import m from './Messages.module.css'
 import DialogItems from "./DialogItem/DialogItem";
 import MessageItem from './MessageItem/MessageItem'
 import React from "react";
-
-let inputEl = React.createRef();
+import {useForm} from "react-hook-form";
+import {useDispatch} from "react-redux";
+import {addMess} from "../../redux/messageReducer";
 
 
 const Messages = (props) => {
@@ -18,13 +19,29 @@ const Messages = (props) => {
                     {props.messages.map(m => <MessageItem key={m.id} message={m.message}
                                                           fromUser={m.fromUser}></MessageItem>)}
                 </div>
-                <input onInput={() => {
-                    props.setInput(inputEl.current.value)
-                }} ref={inputEl} type="text" value={props.newInputText}/>
-                <button onClick={props.addMess}>Send</button>
+                <MessageForm/>
             </div>
         </div>
     )
+}
+
+const MessageForm = () => {
+    const {register, handleSubmit, formState: {errors}} = useForm();
+    const dispatch = useDispatch();
+
+
+    const onSubmit = (data) => {
+        dispatch(addMess(data.messageText))
+    }
+
+    return <form onSubmit={handleSubmit(onSubmit)}>
+        <input type="text" {...register('messageText', {
+            required: true,
+            minLength: 0,
+            maxLength: 30
+        })} />
+        <input type="submit" value={'add message'}/>
+    </form>
 }
 
 export default Messages;

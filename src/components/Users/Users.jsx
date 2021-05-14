@@ -29,7 +29,7 @@ const Users = (props) => {
                     <div key={u.id} className={s.user__item}>
                         <NavLink to={`/profile/${u.id}`}>
                             <div>
-                                <img src={u.photos.small} alt=""/>
+                                <img src={u.photos ? u.photos.small : ''} alt=""/>
                             </div>
                             <div>
                                 {u.name}
@@ -38,13 +38,11 @@ const Users = (props) => {
                                 {u.status}
                             </div>
                         </NavLink>
-                        {u.isFallowed
-                            ? (<button onClick={() => {
-                                props.toggleFollow(u.id)
-                            }}>follow</button>)
-                            : (<button onClick={() => {
-                                props.toggleFollow(u.id)
-                            }}>unfollow</button>)
+                        {u.followed
+                            ? (<button disabled={props.usersFollowProcess.some(id => id == u.id)}
+                                       onClick={() => {props.unfollow(u.id)}}>unfollow</button>)
+                            : (<button disabled={props.usersFollowProcess.some(id => id == u.id)}
+                                       onClick={() => {props.follow(u.id)}}>follow</button>)
                         }
                     </div>
                 )

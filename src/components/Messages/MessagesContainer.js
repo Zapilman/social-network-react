@@ -1,18 +1,19 @@
 import Messages from "./Messages";
 
 import {connect} from "react-redux";
-import {addMess, setInput} from "../../redux/messageReducer";
+import withRedirectHoc from "../../hoc/withRedirect";
+import {compose} from "redux";
 
 
 let mapStateToProps = (state) => {
     return {
         dialogs: state.messagePage.dialogs,
         messages: state.messagePage.messages,
-        newInputText: state.messagePage.newInputText
     }
 };
 
-
-const MessagesContainer = connect(mapStateToProps, {setInput, addMess})(Messages);
-
-export default MessagesContainer
+export default compose(
+    withRedirectHoc,
+    connect(mapStateToProps,
+        {})
+)(Messages)

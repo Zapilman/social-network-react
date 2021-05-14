@@ -3,8 +3,7 @@ const MESSAGE = 'MESSAGE';
 const REFRESH_INPUT_MESSAGE = 'REFRESH-INPUT-MESSAGE';
 
 
-export const addMess = () => ({type: ADD_MESSAGE});
-export const setInput = (text, type) => ({type: REFRESH_INPUT_MESSAGE, text: text});
+export const addMess = (messageText) => ({type: ADD_MESSAGE, messageText});
 
 const initialState = {
     dialogs: [
@@ -21,7 +20,6 @@ const initialState = {
         {message: 'Chotk0, and you?!', fromUser: false},
         {message: 'Normas!', fromUser: true}
     ],
-    newInputText: ''
 };
 
 
@@ -29,21 +27,13 @@ const messageReducer = (state = initialState, action) => {
 
     switch (action.type) {
         case ADD_MESSAGE: {
-            if (state.newInputText) {
-                return {
-                    ...state,
-                    newInputText: '',
-                    messages: [...state.messages, {message: state.newInputText, fromUser: true}]
-                }
+            return {
+                ...state,
+                messages: [...state.messages, {message: action.messageText, fromUser: true}]
             }
             break;
         }
-        case REFRESH_INPUT_MESSAGE: {
-            return {
-                ...state,
-                newInputText: action.text
-            }
-        }
+
     }
 
     return state;
