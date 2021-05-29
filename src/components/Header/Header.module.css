@@ -3,10 +3,7 @@ header{
 
     grid-area: h;
 }
-header img{
+.logo{
     max-width: 60px;
 }
 
-.login{
-    text-align: right;
-}

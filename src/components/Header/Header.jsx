@@ -1,31 +1,28 @@
-import s from './Header.module.css'
-import {NavLink, Redirect} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from "../../redux/authReducer";
-import {useEffect} from "react";
-import {appInit} from "../../redux/appReducer";
-import Preloader from "../Preloader/Preloader";
+import {getAuthUserLogin} from "../../utilities/selectors";
+import s from './Header.module.css'
 
 const HeaderInfo = (props) => {
-    const dispatch = useDispatch();
     return (
-        <div>
+        <span>
             <span>{props.login}</span>
             <button onClick={() => {
-                dispatch(logout())
+                props.onClick();
             }}>Log Out
             </button>
-        </div>
+        </span>
     )
 }
 
-const Header = (props) => {
-
+const Header = () => {
+    const login = useSelector(getAuthUserLogin);
+    const dispatch = useDispatch();
     return (
         <header>
-            <img src="https://toppng.com/uploads/preview/cartoon-network-logo-vector-free-11574141709bqtnrmpzdd.png"
+            <img className={s.logo} src="https://toppng.com/uploads/preview/cartoon-network-logo-vector-free-11574141709bqtnrmpzdd.png"
                  alt=""/>
-            {props.login ? <HeaderInfo login={props.login}/> : <NavLink className={s.login} to='login/'>Login</NavLink>}
+            {login && <HeaderInfo login={login} onClick={()=>{dispatch(logout())}}/> }
         </header>
     )
 }

@@ -1,17 +1,13 @@
 import UserAPI, {ProfileAPI} from "../API/UserAPI";
 
-const ADD_POST = 'ADD-POST';
-const SET_PROFILE = 'SET_PROFILE';
-const SET_LOADING_ICON = 'SET_LOADING_ICON';
-const SET_STATUS = 'SET_STATUS';
-const GET_STATUS = 'GET_STATUS';
+const ADD_POST = 'profileReducer/ADD-POST';
+const SET_PROFILE = 'profileReducer/SET_PROFILE';
+const SET_STATUS = 'profileReducer/SET_STATUS';
 
 
 export const addPost = (postMessage) => ({type: ADD_POST, postMessage});
 export const setProfile = (profile) => ({type: SET_PROFILE, profile});
-export const setLoadingIcon = (isLoading) => ({type: SET_LOADING_ICON, isLoading});
 export const setStatusAC = (status) => ({type: SET_STATUS, status});
-export const getStatusAC = (status) => ({type: GET_STATUS, status});
 
 const initialState = {
     posts: [
@@ -22,8 +18,7 @@ const initialState = {
         fullName: 'cho',
         userId: null,
         status: ''
-    },
-    isLoading: true
+    }
 };
 
 const profileReducer = (state = initialState, action) => {
@@ -40,19 +35,7 @@ const profileReducer = (state = initialState, action) => {
                 profile: action.profile
             }
         }
-        case SET_LOADING_ICON: {
-            return {
-                ...state,
-                isLoading: action.isLoading
-            }
-        }
         case SET_STATUS: {
-            return {
-                ...state,
-                profile: {...state.profile, status: action.status}
-            }
-        }
-        case GET_STATUS: {
             return {
                 ...state,
                 profile: {...state.profile, status: action.status}
@@ -64,35 +47,23 @@ const profileReducer = (state = initialState, action) => {
     }
 }
 
-export const getProfile = (userID) => {
-    return (dispatch) => {
-        let userId = userID;
-        if (!userId) {
-            userId = 16488;
-        }
-        return UserAPI.getProfileAPI(userId).then(response => {
-            dispatch(setProfile(response.data));
-            dispatch(setLoadingIcon(false));
-        })
+export const getProfile = (userID) => async (dispatch) => {
+    const response = await UserAPI.getProfileAPI(userID)
+    dispatch(setProfile(response.data));
+    return response;
+}
+
+export const changeStatus = (status) => async (dispatch) => {
+    const response = await ProfileAPI.setStatus(status)
+    if (response.data.resultCode === 0) {
+        dispatch(setStatusAC(status));
     }
 }
 
-export const setStatus = (status) => {
-    return (dispatch) => {
-        ProfileAPI.setStatus(status).then(() => {
-            dispatch(setStatusAC(status));
-        });
-    }
-
-}
-
-export const getStatus = () => {
-    return (dispatch) => {
-        ProfileAPI.getStatus(16488).then(response => {
-                dispatch(getStatusAC(response.data))
-            }
-        )
-    }
+export const getStatus = (userID) => async (dispatch) => {
+    const response = await ProfileAPI.getStatus(userID)
+    dispatch(setStatusAC(response.data));
+    return true;
 }
 
 export default profileReducer

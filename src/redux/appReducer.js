@@ -1,14 +1,18 @@
 import {authMe} from "./authReducer";
-import {getProfile, getStatus} from "./profileReducer";
+import {getProfile} from "./profileReducer";
 
-const SET_INIT = 'SET_INIT';
+const SET_INIT = 'appReducer/SET_INIT';
+const SET_AUTH_USER = 'appReducer/SET_AUTH_USER'
 
 const initialState = {
-    isInitialized: false
+    isInitialized: false,
+    id: null,
+    login: null
 };
 
 
 export const setInitAC = () => ({type: SET_INIT})
+export const setAuthorizedUser = (id, login) => ({type: SET_AUTH_USER, id, login})
 
 
 const authReducer = (state = initialState, action) => {
@@ -19,26 +23,32 @@ const authReducer = (state = initialState, action) => {
                 isInitialized: true
             }
         }
+        case SET_AUTH_USER: {
+            return {
+                ...state,
+                id: action.id,
+                login: action.login
+            }
+        }
+        default: {
+            return state;
+        }
 
     }
-    return state;
 }
 
 
-const promiseCreate = (promise) => new Promise(resolve => {
-    promise.then(() => {
-        resolve(true);
-    })
-});
-
 export const appInit = () => {
     return (dispatch) => {
-        const authPromise = promiseCreate(dispatch(authMe()));
-        const profilePromise = promiseCreate(dispatch(getProfile()));
-        Promise.all([authPromise, profilePromise]).then((values) => {
-            dispatch(setInitAC());
-        });
-
+        dispatch(authMe()).then((id) => {
+            if (!id) {
+                dispatch(setInitAC());
+                return;
+            }
+            dispatch(getProfile(id)).then(() => {
+                dispatch(setInitAC());
+            })
+        })
     };
 }
 

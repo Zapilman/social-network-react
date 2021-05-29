@@ -3,35 +3,42 @@ import DialogItems from "./DialogItem/DialogItem";
 import MessageItem from './MessageItem/MessageItem'
 import React from "react";
 import {useForm} from "react-hook-form";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {addMess} from "../../redux/messageReducer";
+import withRedirectHoc from "../../hoc/withRedirect";
+import {getDialogs, getMessages} from "../../utilities/selectors";
 
 
-const Messages = (props) => {
+const Messages = () => {
+    const dialogs = useSelector(getDialogs)
+    const messages = useSelector(getMessages);
+    const dispatch = useDispatch();
 
     return (
         <div className={m.messages__wrapper}>
             <div className={m.dialogs}>
-                {props.dialogs.map(d => <DialogItems key={d.id} name={d.name} dialogId={d.dialogId}></DialogItems>)}
+                {dialogs.map(d => <DialogItems key={d.id}
+                                               name={d.name}
+                                               dialogId={d.dialogId}/>)}
             </div>
             <div className={m.messages}>
                 <div className={m.messagesContent}>
-                    {props.messages.map(m => <MessageItem key={m.id} message={m.message}
-                                                          fromUser={m.fromUser}></MessageItem>)}
+                    {messages.map(m => <MessageItem key={m.id}
+                                                    message={m.message}
+                                                    fromUser={m.fromUser}/>)}
                 </div>
-                <MessageForm/>
+                <MessageForm onSubmit={(data)=>{dispatch(addMess(data.messageText))}}/>
             </div>
         </div>
     )
 }
 
-const MessageForm = () => {
-    const {register, handleSubmit, formState: {errors}} = useForm();
-    const dispatch = useDispatch();
-
+const MessageForm = (props) => {
+    const {register, handleSubmit, reset} = useForm();
 
     const onSubmit = (data) => {
-        dispatch(addMess(data.messageText))
+        props.onSubmit(data);
+        reset();
     }
 
     return <form onSubmit={handleSubmit(onSubmit)}>
@@ -44,4 +51,4 @@ const MessageForm = () => {
     </form>
 }
 
-export default Messages;
+export default withRedirectHoc(Messages);

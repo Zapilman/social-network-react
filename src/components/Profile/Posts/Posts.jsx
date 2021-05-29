@@ -2,34 +2,38 @@ import m from './Posts.module.css'
 import Post from './Post/Post'
 import React from "react";
 import {useForm} from "react-hook-form";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import {addPost} from "../../../redux/profileReducer";
-import {getPosts} from "../../../utilities/selectors";
 
 
-const Posts = React.memo(() => {
-    const posts = useSelector(getPosts)
+const Posts = React.memo(({posts}) => {
+    const dispatch = useDispatch();
+
     return (
         <div className={m.posts}>
             <div>
                 My post
             </div>
             <div>
-                <PostsForm/>
+                <PostsForm onSubmit={(data) => {
+                    dispatch(addPost(data.postMessage))
+                }}/>
             </div>
-            {posts.map(post => <Post message={post.message} key={post.id} likeCount={post.likeCount}/>)}
+            {posts.map(post => <Post message={post.message}
+                                     key={post.id}
+                                     likeCount={post.likeCount}/>)}
         </div>
     )
 });
 
 
-const PostsForm = () => {
+const PostsForm = (props) => {
 
-    const {register, handleSubmit, formState: {errors}} = useForm({mode: "onChange"});
-    const dispatch = useDispatch();
+    const {register, handleSubmit, formState: {errors}, reset} = useForm({mode: "onChange"});
 
     const onSubmit = (data) => {
-        dispatch(addPost(data.postMessage));
+        props.onSubmit(data);
+        reset();
     }
 
     return (

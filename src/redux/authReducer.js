@@ -1,33 +1,25 @@
 import {AuthAPI} from "../API/UserAPI";
+import {setAuthorizedUser} from "./appReducer";
 
-const AUTH_USER = 'AUTH_USER';
-const SET_ERROR = 'SET_ERROR';
+const AUTH_USER = 'authReducer/AUTH_USER';
+const SET_ERROR = 'authReducer/SET_ERROR';
 
 const initialState = {
-    login: null,
-    id: null,
-    email: null,
     isAuth: false,
     error: null
 };
 
 
-export const authMeAC = (id, email, login, isAuth) => ({
-    type: AUTH_USER,
-    data: {id, email, login, isAuth}
-});
+export const setIsAuth = (isAuth) => ({type: AUTH_USER, isAuth});
 
-export const setErrorAC = (error) => ({
-    type: SET_ERROR,
-    error
-})
+export const setErrorAC = (error) => ({type: SET_ERROR, error})
 
 const authReducer = (state = initialState, action) => {
     switch (action.type) {
         case AUTH_USER: {
             return {
                 ...state,
-                ...action.data
+                isAuth: action.isAuth
             }
         }
         case SET_ERROR: {
@@ -36,35 +28,32 @@ const authReducer = (state = initialState, action) => {
                 error: action.error
             }
         }
-    }
-    return state;
-}
-
-
-export const authMe = () => {
-    return (dispatch) => {
-        return AuthAPI.me().then(response => {
-            if (response.data.resultCode == 0) {
-                let {id, email, login} = response.data.data;
-                dispatch(authMeAC(id, email, login, true));
-            }
-        })
-    };
-}
-
-export const login = (email, password, rememberMe) => (dispatch) => {
-    AuthAPI.login(email, password, rememberMe).then(response => {
-        (response.data.resultCode == 0)
-            ? dispatch(authMe())
-            : dispatch(setErrorAC(response.data.messages));
-    });
-}
-export const logout = () => (dispatch) => {
-    AuthAPI.logout().then(response => {
-        if (response.data.resultCode == 0) {
-            dispatch(authMeAC(null, null, null, false));
+        default: {
+            return state;
         }
-    });
+    }
+}
+
+
+export const authMe = () => async (dispatch) => {
+    const response = await AuthAPI.me()
+    if (response.data.resultCode === 0) {
+        dispatch(setIsAuth(true));
+        dispatch(setAuthorizedUser(response.data.data.id, response.data.data.login));
+    }
+    return response.data.data.id;
+}
+
+export const login = (email, password, rememberMe) => async (dispatch) => {
+    const response = await AuthAPI.login(email, password, rememberMe)
+    if (response.data.resultCode === 0) dispatch(authMe())
+    else dispatch(setErrorAC(response.data.messages));
+}
+export const logout = () => async (dispatch) => {
+    const response = await AuthAPI.logout()
+    if (response.data.resultCode === 0) {
+        dispatch(setIsAuth(false));
+    }
 }
 
 export default authReducer

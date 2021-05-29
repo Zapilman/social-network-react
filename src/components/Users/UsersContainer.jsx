@@ -1,43 +1,33 @@
-import {connect} from "react-redux";
-import {getUsers, follow, unfollow} from "../../redux/usersReducer";
-import React from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {getUsers} from "../../redux/usersReducer";
+import React, {useEffect, useState} from "react";
 import Users from "./Users";
+import {getCountPage, getPageSize, getUsersFollowProcess, getUsersSelector} from "../../utilities/selectors";
+import Preloader from "../Preloader/Preloader";
+import withRedirectHoc from "../../hoc/withRedirect";
+
+const UsersContainer = () => {
+    const dispatch = useDispatch();
+    const pageSize = useSelector(getPageSize);
+    const countPage = useSelector(getCountPage);
+    const users = useSelector(getUsersSelector);
+    const usersFollowProcess = useSelector(getUsersFollowProcess);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
 
 
-class UserAjaxComponent extends React.Component {
-    componentDidMount() {
-        this.props.getUsers(this.props.currentPage, this.props.pageSize);
-    }
+    useEffect(() => {
+        setIsLoading(true);
+        Promise.all([dispatch(getUsers(currentPage, pageSize))]).then(() => {
+            setIsLoading(false)
+        })
+    }, [currentPage, dispatch, pageSize])
 
-    OnPageChanged = (pageNumber) => {
-        this.props.getUsers(pageNumber, this.props.pageSize);
-    }
-
-    render() {
-        return <Users countPage={this.props.countPage}
-                      OnPageChanged={this.OnPageChanged}
-                      currentPage={this.props.currentPage}
-                      users={this.props.users}
-                      isLoading={this.props.isLoading}
-                      follow={this.props.follow}
-                      unfollow={this.props.unfollow}
-                      usersFollowProcess={this.props.usersFollowProcess}/>
-    }
-
-
+    return (isLoading) ? <Preloader/> : <Users setCurrentPage={setCurrentPage}
+                                               currentPage={currentPage}
+                                               countPage={countPage}
+                                               users={users}
+                                               usersFollowProcess={usersFollowProcess}/>
 }
 
-let mapStateToProps = (state) => {
-    return {
-        users: state.usersPage.users,
-        countPage: state.usersPage.countPage(),
-        currentPage: state.usersPage.currentPage,
-        pageSize: state.usersPage.pageSize,
-        isLoading: state.usersPage.isLoading,
-        usersFollowProcess: state.usersPage.usersFollowProcess
-    }
-};
-
-const UsersContainer = connect(mapStateToProps, {getUsers, follow, unfollow})(UserAjaxComponent);
-
-export default UsersContainer;
+export default withRedirectHoc(UsersContainer);

@@ -1,19 +1,15 @@
 import {Redirect} from 'react-router-dom'
-import {connect} from "react-redux";
+import {useSelector} from "react-redux";
+import {getIsAuthSelector} from "../utilities/selectors";
 
-
-let mapStateToProps = (state) => ({
-    isAuth: state.auth.isAuth
-});
 
 const withRedirectHoc = (Component) => {
-    const withRedirectComponent = (props) => {
-        if (!props.isAuth) return <Redirect to='/login'/>
-        return <Component {...props}/>
+    return () => {
+        const isAuth = useSelector(getIsAuthSelector);
+        if (!isAuth) return <Redirect to='/login'/>
+        return <Component isAuth={isAuth}/>
     }
-    let ConnectedAuthRedirectComponent = connect(mapStateToProps)(withRedirectComponent);
 
-    return ConnectedAuthRedirectComponent;
 }
 
 

@@ -1,27 +1,44 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Profile from "./Profile";
-import {connect} from "react-redux";
-import {getProfile, getStatus, setStatus} from "../../redux/profileReducer";
+import {useDispatch, useSelector} from "react-redux";
+import {getProfile, getStatus} from "../../redux/profileReducer";
 import Preloader from "../Preloader/Preloader";
 import {withRouter} from "react-router";
 import withRedirectHoc from "../../hoc/withRedirect";
 import {compose} from "redux";
-import {getIsLoading, getPosts, getProfileSelector} from "../../utilities/selectors";
+import {getAuthUserId, getPosts, getProfileSelector} from "../../utilities/selectors";
 
 
 const ProfileContainer = (props) => {
-    return props.isLoading ? <Preloader/> : <Profile {...props}/>;
+
+    const dispatch = useDispatch();
+    const id = props.match.params.userId;
+    const [isLoading, setIsLoading] = useState(true);
+    const posts = useSelector(getPosts);
+    const profile = useSelector(getProfileSelector);
+    const authUserId = useSelector(getAuthUserId);
+
+
+    useEffect(() => {
+        setIsLoading(true);
+
+        const profilePromise = dispatch(getProfile((id) ? id : authUserId))
+        const statusPromise = dispatch(getStatus((id) ? id : authUserId))
+
+        Promise.all([profilePromise, statusPromise]).then(() => {
+            setIsLoading(false);
+        });
+    }, [id, authUserId, dispatch])
+
+
+    return isLoading ? <Preloader/> : <Profile posts={posts}
+                                               profile={profile}
+                                               authUserId={authUserId}
+                                               id={id}/>;
 }
 
-let mapStateToProps = (state) => ({
-    posts: getPosts(state),
-    profile: getProfileSelector(state),
-    isLoading: getIsLoading(state),
-});
 
 export default compose(
     withRedirectHoc,
     withRouter,
-    connect(mapStateToProps,
-        {getProfile, setStatus, getStatus})
 )(ProfileContainer)

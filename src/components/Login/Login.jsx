@@ -1,24 +1,25 @@
 import {useForm} from "react-hook-form";
-import {connect, useDispatch, useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import s from '../Login/Login.module.css'
 import {login} from "../../redux/authReducer";
 import {Redirect} from "react-router-dom";
-import {getIsAuthSelector} from "../../utilities/selectors";
+import {getAuthErrorSelector, getIsAuthSelector} from "../../utilities/selectors";
 
 
-const Login = (props) => {
-    const isAuth = useSelector(getIsAuthSelector);
+const Login = () => {
     const {register, handleSubmit} = useForm();
     const dispatch = useDispatch();
+    const error = useSelector(getAuthErrorSelector);
+    const isAuth = useSelector(getIsAuthSelector);
 
     const onSubmit = (data) => {
         dispatch(login(data.email, data.password, true));
     }
 
-    if(isAuth) return <Redirect to={'/profile'} />
+    if (isAuth) return <Redirect to={'/profile'}/>
 
 
-    return(
+    return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <div className={s.input_container}>
                 <input type="mail" required="" {...register('email')}/>
@@ -28,14 +29,12 @@ const Login = (props) => {
                 <input type="password" required="" {...register('password')}/>
                 <label>Password</label>
             </div>
-            {props.error && <div>{props.error[0]}</div>}
+            {error && <div>{error[0]}</div>}
             <div>
                 <input className={s.btn} type="submit"/>
             </div>
         </form>
     )
 }
-const mapStateToProps = (state) => ({
-    error : state.auth.error
-})
-export default connect(mapStateToProps, null)(Login);
+
+export default Login;

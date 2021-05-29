@@ -10,7 +10,7 @@ const Sidebar = () => {
         <nav>
             <ul className={m.navigation}>
                 <li className={`${m.link} ${m.active}`}>
-                    <NavLink to="/profile" activeClassName={m.active}>{sidebar.profile.name}</NavLink>
+                    <NavLink to="/profile/" activeClassName={m.active}>{sidebar.profile.name}</NavLink>
                 </li>
                 <li className={m.link}>
                     <NavLink to="/messages" activeClassName={m.active}>
